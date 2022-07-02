@@ -27,24 +27,30 @@ namespace core {
 	public:
 			
 			Array(int initialSize = 2, bool resizable = true) : maximumSize (initialSize), currentPosition(0), resizable(resizable) {
-
-				data = new T[initialSize];
+				//Don't require a default initaliser. 
+				data = (T *)::operator new(sizeof(T) * initialSize);
 
 			}
 		
-			Array(T * buffer, int start, int end, bool resizable = true) :
-				maximumSize((end - start) + 2), currentPosition(end - start), resizable(resizable) {
-				data = new T[this->maximumSize];
-					
-					
-				memmove(data, &(buffer[start]), (end - start) * sizeof(T));
+			Array(const Array<T> & toCopy): Array<T>(toCopy.data, 0, toCopy.size(), toCopy.resizable) {
+				out("COPIED");
+			}
+		
+			void operator=(const Array<T> & toCopy) {
+				out("YOO");
 			}
 		
 			~Array() {
-				delete[] data;
+				//Anything after current position has not been initalised and so does not need to be destroyed
+				//This prevents the destructors being hit potentially freeing unallocated pointers or closing unopened files .
+				for (int i = 0; i < currentPosition; i ++) {
+					data[i].~T();
+				}
+				out((void *)data);
+				::operator delete(data);
 			}
 			
-			T & operator[](int index) {
+			T & operator[](int index) const {
 				return data[index];
 			}
 				
@@ -53,7 +59,7 @@ namespace core {
 				if (currentPosition + 1 >= maximumSize && resizable == false) {
 					throw std::runtime_error("[error] - cannot insert into a full non-resizable array");
 				}
-				data[currentPosition++] = value;
+				((T)data[currentPosition++]) = value;
 				if (currentPosition >= maximumSize) {
 					enlarge();
 				}
@@ -89,7 +95,7 @@ namespace core {
 				}
 			}
 			
-			int size() {
+			int size() const {
 				return currentPosition;
 			}
 		
@@ -107,9 +113,18 @@ namespace core {
 			int maximumSize;
 			int currentPosition;
 			bool resizable;
-			T * data;
+			mutable T * data;
 			
 			const static int enlargementFactor = 2;
+		
+		
+			Array(T * buffer, int start, int end, bool resizable = true) :
+				maximumSize((end - start) + 2), currentPosition(end - start), resizable(resizable) {
+				data = (T *)::operator new(sizeof(T) * maximumSize);
+					
+					
+				memmove(data, &(buffer[start]), (end - start) * sizeof(T));
+			}
 		
 			void enlarge() {
 				resize(maximumSize * enlargementFactor);
@@ -123,10 +138,16 @@ namespace core {
 				/*
 				 There is a *new* kid on the block
 				*/
-				//data = (T *)realloc(data, newSize * sizeof(T));
+//				data = realloc(data, newSize * sizeof(T));
+//				out(data);
+				
+				
 				maximumSize = newSize;
-				T* newData = new T[newSize];
-				memmove(newData, data, currentPosition * sizeof(T));
+				T* newData = (T *)::operator new(sizeof(T) * newSize);
+				for(int i = 0; i < currentPosition; i ++) {
+					newData[i] = data[i];
+				}
+//				memmove(newData, data, currentPosition * sizeof(T));
 				delete [] data;
 				data = newData;
 				
