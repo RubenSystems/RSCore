@@ -9,6 +9,7 @@
 #define Array_h
 
 #include "Allocator.h"
+#include "../Output.h"
 
 namespace core {
 	template <class T>
@@ -30,7 +31,7 @@ namespace core {
 //			used_size = toCopy.used_size;
 		}
 		
-		void operator=(Array<T>& other) {
+		void operator=(Array<T> & other) {
 			Allocator<T>::allocate(other.Allocator<T>::allocated_size);
 			for(int i = 0; i < other.size(); i ++) {
 				T copied (other.data[i]);
@@ -52,7 +53,9 @@ namespace core {
 			if (used_size + 1 > Allocator<T>::allocatedSize()){
 				Allocator<T>::allocate(1 + Allocator<T>::allocatedSize() + expansion_size);
 			}
-			Allocator<T>::operator[](used_size++) = element;
+			//			Allocator<T>::operator[](used_size++) = element;
+			//T is a copy so don't need to assign
+			memmove(Allocator<T>::data, &element, sizeof(T));
 			
 		}
 		
@@ -60,16 +63,11 @@ namespace core {
 			return used_size;
 		}
 		
-		void operator += (const Array<T> & rhs) {
-			for(int i = 0; i < rhs.size(); i ++) {
-				add(rhs[i]);
-			}
-		}
 		
-		private:
-			int used_size;
-			int expansion_size;
-			bool resizable;
+		protected:
+			int used_size = 0;
+			int expansion_size = 0;
+			bool resizable = false;
 		
 		
 	};

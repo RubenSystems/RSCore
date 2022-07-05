@@ -15,24 +15,41 @@
 namespace core {
 	class Text : public Array<char> {
 		public:
-			Text(const char * chararray) : Array<char>((int)strlen(chararray) + 1, 0, false) {
-				memmove(&(Array<char>::operator[](0)), &(chararray), sizeof(char) * strlen(chararray));
+			Text() : Text("") {
+				
 			}
 		
-			Text operator + (const Text & rhs) {
-				char buffer [size() + rhs.size() + 1];
-				strcpy(buffer, data);
-				strcat(buffer, rhs.data);
-				buffer[size() + rhs.size()] = 0;
-				return buffer;
+			Text(const char * chararray) : Array<char>((int)strlen(chararray) + 1, 0, false) {
+				int length = (int)strlen(chararray);
+				strcpy(data, chararray);
+				used_size = length + 1;
+				operator[](length) = 0;
 			}
-			
-			const char * c_string() {
+		
+
+			const char * c_string() const {
 				return data;
 			}
+		
+			void operator = (const Text & rhs) {
+				int rhsLength = (int)strlen(rhs.data);
+				out(rhs.allocated_size << " " << allocated_size << " " << rhsLength);
+				
+				allocate(rhsLength + 1);
+				strcpy(data, rhs.data);
+				data[rhsLength] = 0;
+			}
+		
+			void operator += (const Text & rhs) {
+				allocate(size() + rhs.size() + 1);
+				strcat(data, rhs.data);
+			}
 
-		
-		
+			Text operator + (const Text & rhs) const {
+				Text newText (c_string());
+				newText += rhs;
+				return newText;
+			}
 	};
 }
 

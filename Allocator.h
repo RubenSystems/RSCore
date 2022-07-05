@@ -22,7 +22,7 @@
  */
 
 #include <system_error>
-
+#include "../Output.h"
 
 namespace core {
 	template <class T>
@@ -43,12 +43,12 @@ namespace core {
 		
 			void allocate(int blocks) {
 				T * newAddress = (T *)(::operator new(sizeof(T) * blocks));
-				
 				if (data != nullptr) {
 					for (int i = 0; i < allocated_size; i ++) {
 						newAddress[i] = data[i];
 					}
 //					memmove(newAddress, data, allocated_size * sizeof(T));
+					
 					::operator delete(data, sizeof(T) * allocated_size);
 				}
 				
