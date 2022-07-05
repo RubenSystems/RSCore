@@ -8,68 +8,85 @@
 #ifndef Allocator_h
 #define Allocator_h
 
-/*
- 
- This is an allocator for allocating contigious blocks
- It should be used as a subclass as by itself it will
- not hit the destructor of any of the classes.
- 
- to allocate contigious blocks, use allocate
- You should call destroy before deallocating as that calls
- the destructor
- 
- 
- */
 
 #include <system_error>
-#include "../Output.h"
+#include "Output.h"
 
 namespace core {
-	template <class T>
+	template <typename T>
 	class Allocator {
 		public:
-
+			typedef unsigned long index_type;
+			
 		
+			/**
+			 Creates an allocator. Initally pointing to unallocated data.
+			 */
+			Allocator() : data(nullptr), allocated(0) {}
+		
+			Allocator(const Allocator & allocator) {
+			}
+			
+			/**
+			 Destructor. Will free the amount of memory allocated
+			 
+			 Notes:
+				- Does not hit the destructor of the objects in its allocation. That should be done by calling ::destroy(index: )
+			 */
 			~Allocator() {
-				::operator delete(data, sizeof(T) * allocated_size);
+				::operator delete(data, allocated * sizeof(T));
 			}
 		
-			T & operator[](int index) const {
-				if (allocated_size < index) {
-					throw std::runtime_error("[ALLOCATOR] - attempt to access out of bounds index");
-				}
+		
+			T operator[](index_type index) const {
+				if (index > allocated) { throw std::runtime_error("[ALLOCATOR] - cannot access element that is out of bounds"); }
 				return data[index];
 			}
 		
-			void allocate(int blocks) {
-				T * newAddress = (T *)(::operator new(sizeof(T) * blocks));
-				if (data != nullptr) {
-					for (int i = 0; i < allocated_size; i ++) {
-						newAddress[i] = data[i];
+			T & operator[](index_type index) {
+				if (index > allocated) { throw std::runtime_error("[ALLOCATOR] - cannot access element that is out of bounds"); }
+				return data[index];
+			}
+		
+			/**
+			 Allocates memory of size blocks.
+			 
+			 Notes:
+				- Preserves previously allocated data.
+				- If there was previous data, it will move it over.
+			 
+			 Warning:
+				- If the size of previous data > size, it will truncate the data and not destroy it.
+				- You need to make sure that the data is being destroyed
+			 */
+			void allocate(index_type size) {
+				T * newData = (T *)::operator new(size * sizeof(T));
+				if (data != nullptr){
+					for (int i = 0; i < allocated; i ++) {
+						newData[i] = std::move(data[i]);
 					}
-//					memmove(newAddress, data, allocated_size * sizeof(T));
-					
-					::operator delete(data, sizeof(T) * allocated_size);
 				}
+				::operator delete(data, allocated * sizeof(T));
+				data = newData;
+				allocated = size;
 				
-				data = newAddress;
-				allocated_size = blocks;
+				
 			}
 		
-			void destroy(int index) {
-				data[index].~T();
+			/**
+			 Size. Returns the amount of blocks (where a block is sizeof(T)) have been allocated.
+			 */
+			index_type size() const {
+				return allocated;
 			}
 		
-			int allocatedSize() {
-				return allocated_size;
-			}
-
+		
 		
 		protected:
-			mutable T * data = nullptr;
-			int allocated_size = 0;
-			
+			T * data;
+			index_type allocated;
 	};
 }
+
 
 #endif /* Allocator_h */
