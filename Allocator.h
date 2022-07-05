@@ -46,8 +46,9 @@ namespace core {
 			}
 			
 			Allocator & operator = (Allocator && move) {
-				this->data = move.data;
-				this->allocated = move.allocatedSize();
+				data = move.data;
+				allocated = move.allocatedSize();
+				move.data = nullptr;
 				return *this;
 			}
 			

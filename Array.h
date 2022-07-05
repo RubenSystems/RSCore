@@ -19,6 +19,15 @@ namespace core {
 				Allocator<T>::allocate(2);
 			}
 		
+			~Array() {
+				if (Allocator<T>::data == nullptr)
+					return;
+				
+				for (int i = 0; i < currentSize; i ++) {
+					Allocator<T>::data[i].~T();
+				}
+			}
+		
 			void add (const T & item) {
 				if (currentSize >= Allocator<T>::allocated) {
 					Allocator<T>::allocate(Allocator<T>::allocated * enlargement);
