@@ -23,9 +23,35 @@ namespace core {
 			 Creates an allocator. Initally pointing to unallocated data.
 			 */
 			Allocator() : data(nullptr), allocated(0) {}
+	
 		
-			Allocator(const Allocator & allocator) {
+			Allocator(const Allocator & copy) {
+				allocate(copy.allocatedSize());
+				for (index_type i = 0; i < copy.allocatedSize(); i ++) {
+					operator[](i) = copy[i];
+				}
 			}
+			
+			Allocator(Allocator && move) {
+				data = move.data;
+				allocated = move.allocatedSize();
+			}
+			
+			Allocator & operator = (const Allocator & copy) {
+				allocate(copy.allocatedSize());
+				for (index_type i = 0; i < copy.allocatedSize(); i ++) {
+					operator[](i) = copy[i];
+				}
+				return *this;
+			}
+			
+			Allocator & operator = (Allocator && move) {
+				this->data = move.data;
+				this->allocated = move.allocatedSize();
+				return *this;
+			}
+			
+		
 			
 			/**
 			 Destructor. Will free the amount of memory allocated
@@ -76,7 +102,7 @@ namespace core {
 			/**
 			 Size. Returns the amount of blocks (where a block is sizeof(T)) have been allocated.
 			 */
-			index_type size() const {
+			index_type allocatedSize() const {
 				return allocated;
 			}
 		
