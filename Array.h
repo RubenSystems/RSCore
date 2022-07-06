@@ -15,8 +15,8 @@ namespace core {
 	template <typename T>
 	class Array: public Allocator<T> {
 		public:
-			Array() {
-				Allocator<T>::allocate(2);
+			Array(typename Allocator<T>::index_type initial_size = 4) {
+				Allocator<T>::allocate(initial_size);
 			}
 		
 			~Array() {

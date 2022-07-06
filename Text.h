@@ -20,19 +20,29 @@ namespace core {
 				strcpy(data, text);
 			}
 		
-			index_type size() {
+			index_type size() const {
 				return currentSize;
 			}
 		
-			const char * c_string() {
+			const char * c_string() const {
 				return data;
+			}
+		
+			Text & operator += (const Text & rhs) {
+				allocateTextForSize(size() + rhs.size());
+				strcat(data, rhs.data);
+				return *this;
 			}
 		
 		private:
 			index_type currentSize = 0;
 		
 			void allocateText(const char * text) {
-				currentSize = strlen(text);
+				allocateTextForSize(strlen(text));
+			}
+		
+			void allocateTextForSize(index_type size) {
+				currentSize = size;
 				allocate(currentSize + 1);
 				operator[](currentSize) = 0;
 			}
