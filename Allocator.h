@@ -88,12 +88,13 @@ namespace core {
 			 */
 			void allocate(index_type size) {
 				T * newData = (T *)::operator new(size * sizeof(T));
-				if (data != nullptr){
+				if (data != nullptr && allocated != 0){
 					for (int i = 0; i < allocated; i ++) {
 						newData[i] = std::move(data[i]);
 					}
+					::operator delete(data, allocated * sizeof(T));
 				}
-				::operator delete(data, allocated * sizeof(T));
+				
 				data = newData;
 				allocated = size;
 				
