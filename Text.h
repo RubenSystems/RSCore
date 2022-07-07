@@ -9,6 +9,7 @@
 #define Text_h
 
 #include "Allocator.h"
+#include "Array.h"
 
 #include <string.h>
 
@@ -33,6 +34,22 @@ namespace core {
 				strcat(data, rhs.data);
 				return *this;
 			}
+			
+			Array<Text> split(const char * at) {
+				Array<Text> result;
+				char * buffer;
+				buffer = strtok(data, at);
+				do {
+					if (buffer) {
+						result.add(buffer);
+					} else {
+						break;
+					}
+					buffer = strtok(NULL, at);
+				} while (true);
+				return result;
+			}
+			
 		
 		private:
 			index_type currentSize = 0;

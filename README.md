@@ -1,9 +1,9 @@
 # RSCore
-RubenSystems STL for Mac and Lunix
+RubenSystems templating library for Mac and Lunix
 
-Designed as a lightweight and performant STL for projects that require easy customisation of and additions to standard features. 
+Designed as a lightweight and performant templating library for projects that require easy customisation of and additions to standard features. 
 
-It is header only and namespaced so if you wish to use it, git clone and #include "file you want". 
+It is header only and namespaced.
 
 
 ### Implemented features: 
