@@ -15,7 +15,7 @@ namespace core {
 	class Queue : public Allocator<T>{
 		
 		public:
-			Queue(typename Allocator<T>::index_type size): start(0), end(0) {
+			Queue(typename Allocator<T>::index_type size): start(0), end(0), count(0) {
 				Allocator<T>::allocate(size);
 			}
 		
