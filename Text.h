@@ -21,6 +21,25 @@ namespace core {
 				strcpy(data, text);
 			}
 		
+			Text(const Text & copy): currentSize(copy.currentSize) {
+				
+			}
+			
+			Text(Text && move): currentSize(move.currentSize) {
+				
+			}
+			
+			Text & operator = (const Text & copy) {
+				currentSize = copy.currentSize;
+				return *this;
+			}
+			
+			Text & operator = (Text && move) {
+				currentSize = move.currentSize;
+				return *this;
+			}
+
+		
 			index_type size() const {
 				return currentSize;
 			}
