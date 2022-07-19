@@ -22,19 +22,25 @@ namespace core {
 			}
 		
 			Text(const Text & copy): currentSize(copy.currentSize) {
-				
+				allocate(copy.allocatedSize());
+				strcpy(data, copy.data);
 			}
 			
 			Text(Text && move): currentSize(move.currentSize) {
-				
+				data = move.data;
+				move.data = nullptr;
 			}
 			
 			Text & operator = (const Text & copy) {
+				allocate(copy.allocatedSize());
+				strcpy(data, copy.data);
 				currentSize = copy.currentSize;
 				return *this;
 			}
 			
 			Text & operator = (Text && move) {
+				data = move.data;
+				move.data = nullptr;
 				currentSize = move.currentSize;
 				return *this;
 			}
@@ -49,8 +55,9 @@ namespace core {
 			}
 		
 			Text & operator += (const Text & rhs) {
-				allocateTextForSize(size() + rhs.size());
+				allocateTextForSize(allocatedSize() + rhs.size());
 				strcat(data, rhs.data);
+				data[allocatedSize() + rhs.size()] = 0;
 				return *this;
 			}
 			

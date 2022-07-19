@@ -19,11 +19,13 @@ namespace core {
 				Allocator<T>::allocate(initial_size);
 			}
 		
-			Array(T type [], int size) {
+			Array(T data [], int size) {
 				
-				Allocator<T>::allocate(size);
-				memmove(Allocator<T>::data, type, sizeof(T) * size);
+				Allocator<T>::data = data;
+				data = nullptr;
 			}
+		
+			
 		
 			~Array() {
 				if (Allocator<T>::data == nullptr)
@@ -35,19 +37,31 @@ namespace core {
 			}
 		
 			Array(const Array & copy) : currentSize(copy.currentSize) {
-				
+				Allocator<T>::allocate(copy.Allocator<T>::allocatedSize());
+				for(int i = 0; i < copy.currentSize; i ++) {
+					Allocator<T>::data[i] = copy.Allocator<T>::data[i];
+				}
 			}
 
 			Array(Array && move) : currentSize(move.currentSize) {
-
+				Allocator<T>::data = move.Allocator<T>::data;
+				move.Allocator<T>::data = nullptr;
 			}
 
 			Array & operator = (const Array & copy) {
+				Allocator<T>::allocate(copy.Allocator<T>::allocatedSize());
+				for(int i = 0; i < copy.currentSize; i ++) {
+					Allocator<T>::data[i] = copy.Allocator<T>::data[i];
+				}
+				
 				currentSize = copy.currentSize;
 				return *this;
 			}
 
 			Array & operator = (Array && move) {
+				Allocator<T>::data = move.Allocator<T>::data;
+				move.Allocator<T>::data = nullptr;
+				
 				currentSize = move.currentSize;
 				return *this;
 			}
@@ -91,6 +105,4 @@ namespace core {
 	};
 }
 
-
 #endif /* Array_h */
-
