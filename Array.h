@@ -19,13 +19,18 @@ namespace core {
 				Allocator<T>::allocate(initial_size);
 			}
 		
-			Array(T data [], int size) {
+			Array(std::initializer_list<T> initaliser) : currentSize(initaliser.size()) {
+				Allocator<T>::allocate(initaliser.size() + enlargement);
 				
+				for (int i = 0; i < initaliser.size(); i ++) {
+					Allocator<T>::data[i] = *(T *)std::move(initaliser.begin() + i);
+				}
+			}
+		
+			Array(T data [], int size) {
 				Allocator<T>::data = data;
 				data = nullptr;
 			}
-		
-			
 		
 			~Array() {
 				if (Allocator<T>::data == nullptr)
