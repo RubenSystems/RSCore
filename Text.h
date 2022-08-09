@@ -18,7 +18,7 @@ namespace core {
 		public:
 			Text(const char * text) {
 				allocateText(text);
-				strncpy(data, text);
+				strcpy(data, text);
 			}
 		
 			Text(const Text & copy): currentSize(copy.currentSize) {
