@@ -52,8 +52,6 @@ namespace core {
 				return *this;
 			}
 			
-		
-			
 			/**
 			 Destructor. Will free the amount of memory allocated
 			 
@@ -97,8 +95,6 @@ namespace core {
 				
 				data = newData;
 				allocated = size;
-				
-				
 			}
 		
 			/**
