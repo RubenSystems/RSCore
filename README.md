@@ -11,4 +11,4 @@ It is header only and namespaced.
 - Allocator: Allocates contiguious blocks without calling (con/de)structors (be careful) 
 - Array: Like a vector in c++  
 - Text: Like a string in c++ 
-- Queue: Implemented like a queue. 
+- Queue: a circular queue. 
