@@ -32,9 +32,19 @@ namespace core {
 		
 		public:
 			
+			// Null init every entry
 			Dictionary(int number_of_tables = 200) : Array<Array<T>>(number_of_tables) {
 				
 			}
+		
+			//Init every entry
+			template <typename... args>
+			Dictionary(int number_of_tables = 200, args && ... construction_parameters) : Array<Array<T>>(number_of_tables) {
+				for (int i = 0; i < number_of_tables; i ++) {
+					new(&(Array<Array<T>>::operator[](i))) T(std::forward<T>(construction_parameters)...);
+				}
+				
+			};
 		
 			Dictionary(const Dictionary & copy) {
 				
