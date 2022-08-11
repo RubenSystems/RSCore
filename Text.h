@@ -45,6 +45,11 @@ namespace core {
 				currentSize = move.currentSize;
 				return *this;
 			}
+		
+			bool operator == (const Text & rhs) {
+				return strcmp(c_string(), rhs.c_string());
+			}
+
 
 		
 			index_type size() const {
@@ -89,6 +94,26 @@ namespace core {
 				allocate(currentSize + 1);
 				operator[](currentSize) = 0;
 			}
+	};
+}
+
+namespace std {
+	template <> struct hash<core::Text> {
+		// djb2
+		size_t operator()(const core::Text & text) const {
+			unsigned long int hash;
+			int c;
+			
+			hash = 5381;
+			const char * c_string = text.c_string();
+			for (int i = 0; i < text.size(); i ++) {
+				char x = c_string[i];
+				c = x;
+				hash = ((hash << 5) + hash) + c;
+				/* hash * 33 + c */
+			}
+			return hash;
+		}
 	};
 }
 
