@@ -89,21 +89,11 @@ namespace core {
 						return result[i].value;
 					}
 				}
-				
 				throw std::runtime_error("[DICTIONARY] - key does not exist");
 			}
 		
 			Value operator[](const Key & key) const {
-				typename Allocator<T>::index_type hash = hasher(key) % Allocator<parent>::allocated;
-				Array<T> & result = Allocator<parent>::operator[](hash);
-				
-				for (int i = 0; i < result.size(); i ++){
-					if (result[i].key == key) {
-						return result[i].value;
-					}
-				}
-				
-				throw std::runtime_error("[DICTIONARY] - key does not exist");
+				return operator[](key);
 			}
 		
 		private:
