@@ -61,8 +61,9 @@ namespace core {
 			}
 		
 			Text & operator += (const Text & rhs) {
-				allocateTextForSize(allocatedSize() + rhs.size());
-				strncat(data, rhs.data, allocatedSize() + rhs.size() - 1);
+				index_type current_allocated_size = allocatedSize();
+				allocateTextForSize(current_allocated_size + rhs.size());
+				strncat(data, rhs.data, current_allocated_size + rhs.size() - 1);
 				return *this;
 			}
 			
