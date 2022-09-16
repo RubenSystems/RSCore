@@ -8,104 +8,121 @@
 #ifndef Array_h
 #define Array_h
 
-#include "Allocator.h"
 #include "Output.h"
+#include "Allocator.h"
+#include "ArrayWindow.h"
 
 namespace core {
-	template <typename T>
-	class Array: public Allocator<T> {
+	template <class T, class Alloc = Allocator<T>>
+	class Array: public Alloc {
 		public:
-			Array(typename Allocator<T>::index_type initial_size = 4) {
-				Allocator<T>::allocate(initial_size);
+			Array() {
+				
+			}
+		
+			Array(typename Alloc::index_type initial_size) {
+				Alloc::allocate(initial_size);
 			}
 		
 			Array(std::initializer_list<T> initaliser) : currentSize(initaliser.size()) {
-				Allocator<T>::allocate(initaliser.size() + enlargement);
+				Alloc::allocate(initaliser.size() + enlargement);
 				
 				for (int i = 0; i < initaliser.size(); i ++) {
-					Allocator<T>::data[i] = *(T *)std::move(initaliser.begin() + i);
+					Alloc::data[i] = *(T *)std::move(initaliser.begin() + i);
 				}
 			}
 		
-			Array(T data [], int size) {
-				Allocator<T>::data = data;
-				data = nullptr;
+			Array(T data [], int size): currentSize(size) {
+				Alloc::allocate(size + enlargement);
+				
+				for (int i = 0; i < size; i ++) {
+					Alloc::data[i] = data[i];
+				}
 			}
 		
 			~Array() {
-				if (Allocator<T>::data == nullptr)
+				if (Alloc::data == nullptr)
 					return;
 				
 				for (int i = 0; i < currentSize; i ++) {
-					Allocator<T>::data[i].~T();
+					Alloc::data[i].~T();
 				}
 			}
 		
 			Array(const Array & copy) : currentSize(copy.currentSize) {
-				Allocator<T>::allocate(copy.Allocator<T>::allocatedSize());
+				Alloc::allocate(copy.Alloc::allocatedSize());
 				for(int i = 0; i < copy.currentSize; i ++) {
-					Allocator<T>::data[i] = copy.Allocator<T>::data[i];
+					Alloc::data[i] = copy.Alloc::data[i];
 				}
 			}
 
-			Array(Array && move) : currentSize(move.currentSize) {
-				Allocator<T>::data = move.Allocator<T>::data;
-				move.Allocator<T>::data = nullptr;
+			Array(Array && move) : currentSize(move.currentSize), Alloc(std::move(move)) {
+//				Alloc::data = move.Alloc::data;
+//				move.Alloc::data = nullptr;
 			}
 
 			Array & operator = (const Array & copy) {
-				Allocator<T>::allocate(copy.Allocator<T>::allocatedSize());
+				Alloc::allocate(copy.Alloc::allocatedSize());
 				for(int i = 0; i < copy.currentSize; i ++) {
-					Allocator<T>::data[i] = copy.Allocator<T>::data[i];
+					Alloc::data[i] = copy.Alloc::data[i];
 				}
-				
 				currentSize = copy.currentSize;
 				return *this;
 			}
 
 			Array & operator = (Array && move) {
-				Allocator<T>::data = move.Allocator<T>::data;
-				move.Allocator<T>::data = nullptr;
+				Alloc::operator=(std::move(move));
 				
 				currentSize = move.currentSize;
 				return *this;
 			}
 
 			void add (const T & item) {
-				if (currentSize >= Allocator<T>::allocated) {
-					Allocator<T>::allocate(Allocator<T>::allocated * enlargement);
+				if (currentSize >= Alloc::allocated) {
+					Alloc::allocate(Alloc::allocated * enlargement);
 				}
-				Allocator<T>::operator[](currentSize ++) = item;
+				Alloc::operator[](currentSize ++) = item;
 			}
 		
 			void add (T && item) {
-				if (currentSize >= Allocator<T>::allocated) {
-					Allocator<T>::allocate(Allocator<T>::allocated * enlargement);
+				if (currentSize >= Alloc::allocated) {
+					Alloc::allocate((Alloc::allocated == 0 ? 1 : Alloc::allocated) * enlargement);
 				}
 				
-				// TODO: remove std lib
-				Allocator<T>::operator[](currentSize ++) = std::move(item);
+				Alloc::operator[](currentSize ++) = std::move(item);
+			}
+			
+		
+			ArrayWindow<T> subarray(typename Alloc::index_type start, typename Alloc::index_type end) {
+				return ArrayWindow<T>(Alloc::data, start, end);
 			}
 		
+			void resize(typename Alloc::index_type new_size) {
+				if (currentSize != new_size) {	
+					Alloc::allocate(new_size + enlargement);
+					currentSize = new_size;
+				}
+			}
+			
 			// Construct and add (if you can come up with a better name email ruben.t.j@icloud.com)
 			template <typename... args>
 			void conadd(args && ... construction_parameters) {
-				if (currentSize >= Allocator<T>::allocated) {
-					Allocator<T>::allocate(Allocator<T>::allocated * enlargement);
+				if (currentSize >= Alloc::allocated) {
+					Alloc::allocate(Alloc::allocated * enlargement);
 				}
 				
-				new(&(Allocator<T>::data[currentSize ++])) T(std::forward<T>(construction_parameters)...);
+				new(&(Alloc::data[currentSize ++])) T(std::forward<args>(construction_parameters)...);
 			};
 		
-			typename Allocator<T>::index_type size() const {
+			typename Alloc::index_type size() const {
 				return currentSize;
 			}
 			
 			
 		
-		private:
+		protected:
 			static const int enlargement = 2;
-			typename Allocator<T>::index_type currentSize = 0;
+			typename Alloc::index_type currentSize = 0;
 		
 	};
 }

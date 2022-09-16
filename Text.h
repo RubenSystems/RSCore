@@ -26,12 +26,11 @@ namespace core {
 				strncpy(data, copy.data, copy.currentSize);
 			}
 			
-			Text(Text && move): currentSize(move.currentSize) {
-				data = move.data;
-				allocated = move.allocated;
-				move.data = nullptr;
+			Text(Text && move): currentSize(move.currentSize), Allocator(std::move(move)) {
+				
 			}
 			
+			// Cannot call allocator copy becuase that would move everything over.
 			Text & operator = (const Text & copy) {
 				allocate(copy.allocatedSize());
 				strncpy(data, copy.data, copy.currentSize);
@@ -40,14 +39,13 @@ namespace core {
 			}
 			
 			Text & operator = (Text && move) {
-				data = move.data;
-				move.data = nullptr;
+				Allocator::operator=(std::move(move));
 				currentSize = move.currentSize;
 				return *this;
 			}
 		
 			bool operator == (const Text & rhs) {
-				return strcmp(c_string(), rhs.c_string());
+				return !strcmp(c_string(), rhs.c_string());
 			}
 
 

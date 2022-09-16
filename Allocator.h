@@ -35,6 +35,7 @@ namespace core {
 			Allocator(Allocator && move) {
 				data = move.data;
 				allocated = move.allocatedSize();
+				move.data = nullptr;
 			}
 			
 			Allocator & operator = (const Allocator & copy) {
