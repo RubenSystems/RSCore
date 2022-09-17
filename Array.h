@@ -32,7 +32,7 @@ namespace core {
 				}
 			}
 		
-			Array(T data [], int size): currentSize(size) {
+			Array(T data [], typename Alloc::index_type size): currentSize(size) {
 				Alloc::allocate(size + enlargement);
 				
 				for (int i = 0; i < size; i ++) {
