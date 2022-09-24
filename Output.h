@@ -12,7 +12,6 @@
 #define _DEBUG true
 
 #if _DEBUG
-	#include <iostream>
 	#define out(value) (std::cout << value << std::endl)
 #else
 	#define out(value)
