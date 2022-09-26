@@ -12,7 +12,7 @@
 #define _DEBUG true
 
 #if _DEBUG
-	#define out(value) (std::cout << value << std::endl)
+	#define out(value)
 #else
 	#define out(value)
 #endif
