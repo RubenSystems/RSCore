@@ -47,6 +47,7 @@ namespace core {
 			}
 			
 			Allocator & operator = (Allocator && move) {
+				delete data;
 				data = move.data;
 				allocated = move.allocatedSize();
 				move.data = nullptr;
